@@ -71,9 +71,9 @@ describe('TCGTrackingClient', () => {
     });
 
     test('Removes unknown properties from the response when strict is disabled', async () => {
-      const expectedResult: CategoryList = {
+      const expectedResult: CategoryList & { extra: string } = {
         categories: [],
-        extra: 'property',
+        extra: faker.lorem.words(),
       };
 
       server.use(
@@ -86,9 +86,9 @@ describe('TCGTrackingClient', () => {
     });
 
     test('Throws if unknown properties are in the response when strict is enabled', async () => {
-      const expectedResult: CategoryList = {
+      const expectedResult: CategoryList & { extra: string } = {
         categories: [],
-        extra: 'property',
+        extra: faker.lorem.words(),
       };
 
       server.use(

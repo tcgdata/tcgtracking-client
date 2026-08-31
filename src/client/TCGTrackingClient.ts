@@ -23,7 +23,7 @@ import { isValidId } from '../utils';
 import { PRODUCT_TYPE, ProductType } from '../constants';
 
 export class TCGTrackingClient {
-  #strictSchemas: Map<z.ZodObject, z.ZodObject>;
+  #strictSchemas: Map<z.ZodType, z.ZodType>;
   #props: Required<TCGTrackingClientProps>;
 
   public constructor(props: TCGTrackingClientProps) {
@@ -147,8 +147,8 @@ export class TCGTrackingClient {
   }
 
   async #requestAndParse<T>(url: string, schema: z.ZodType<T>, init?: RequestInit): Promise<T> {
-    if (this.#props.strict) {
-      schema = this.#makeStrict(schema);
+    if (this.#props.strict && schema instanceof z.ZodObject) {
+      schema = this.#makeStrict(schema) as z.ZodType<T>;
     }
 
     const response = await this.#request(url, init);
@@ -182,7 +182,7 @@ export class TCGTrackingClient {
     let newSchema = this.#strictSchemas.get(schema);
 
     if (newSchema) {
-      return newSchema;
+      return newSchema as TSchema;
     }
 
     if (schema instanceof z.ZodObject) {
@@ -192,10 +192,9 @@ export class TCGTrackingClient {
         newShape[key] = this.#makeStrict(subSchema);
       });
 
-      // @ts-expect-error workaround type mismatch
       newSchema = z.object(newShape).strict();
-      this.#strictSchemas.set(schema, newSchema);
-      return newSchema;
+      this.#strictSchemas.set(schema, newSchema!);
+      return newSchema as unknown as TSchema;
     }
 
     return schema;
