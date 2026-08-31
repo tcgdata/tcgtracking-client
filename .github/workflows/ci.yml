@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches:
+    branches-ignore:
       # avoid loop when changesets creates PR branches
       - 'changeset-release/**'
   pull_request:
